@@ -23,6 +23,7 @@ from playwright.async_api import (
     Response as PlaywrightResponse,
     Route,
 )
+from playwright_stealth import stealth_async
 from scrapy import Spider, signals
 from scrapy.core.downloader.handlers.http import HTTPDownloadHandler
 from scrapy.crawler import Crawler
@@ -301,7 +302,9 @@ class ScrapyPlaywrightDownloadHandler(HTTPDownloadHandler):
                 )
 
         await ctx_wrapper.semaphore.acquire()
+        spider.logger.info("Applying playwright stealth...")
         page = await ctx_wrapper.context.new_page()
+        await stealth_async(page)
         self.stats.inc_value("playwright/page_count")
         total_page_count = self._get_total_page_count()
         logger.debug(
